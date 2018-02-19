@@ -1,5 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import $ from 'jquery';
+import AddGrocery from './components/AddGrocery.jsx';
+import GroceryList from './components/GroceryList.jsx';
 
 class App extends React.Component {
   constructor(props) {
@@ -14,9 +17,50 @@ class App extends React.Component {
     }
   }
 
+  componentDidMount() {
+    this.fetchGroceries()
+  }
+
+  addGroceries(item) {
+    var context = this;
+    $.ajax({
+      type: 'POST',
+      data: JSON.stringify(item),
+      url: '/groceries',
+      contentType: 'application/json',
+      success: function(data) {
+        console.log('successful post');
+        context.fetchGroceries();
+      },
+      error: function(err) {
+        console.log('error did not post');
+      }
+    })
+  }
+
+  fetchGroceries() {
+    var context = this;
+    $.ajax({
+      type: 'GET',
+      url: '/groceries',
+      success: function(data) {
+        console.log('successful get', data);
+        context.setState({list: data})
+      },
+      error: function(err) {
+        console.log('error get', err);
+      }
+    })
+  }
   
   render () {
-    return null;
+    return (
+      <div>
+        <h1>Grocery List</h1>
+        <AddGrocery add={this.addGroceries.bind(this)}/>
+        <GroceryList list={this.state.list}/>
+      </div>
+    )
   }
 }
 
